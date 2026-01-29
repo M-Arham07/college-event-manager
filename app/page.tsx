@@ -1,5 +1,6 @@
 import { Suspense } from "react"
-import { getDelegatesCollection } from "@/lib/mongodb"
+import connectDB from "@/lib/mongodb"
+import Delegate from "@/lib/models/delegate"
 import { StatsCards } from "@/components/stats-cards"
 import { DelegatesFilters } from "@/components/delegates-filters"
 import { DelegatesTable } from "@/components/delegates-table"
@@ -13,14 +14,14 @@ interface PageProps {
 }
 
 async function getDelegatesData(filters: FilterParams) {
-  const collection = await getDelegatesCollection()
+  await connectDB()
 
   // Build query based on filters
   const query: Record<string, unknown> = {}
 
   // Search filter (case-insensitive partial match on name/category)
   if (filters.search) {
-    const searchRegex = { $regex: filters.search, $options: "i" }
+    const searchRegex = new RegExp(filters.search, "i")
     query.$or = [{ delegate_name: searchRegex }, { category: searchRegex }]
   }
 
@@ -42,10 +43,10 @@ async function getDelegatesData(filters: FilterParams) {
   }
 
   // Fetch filtered delegates
-  const delegates = await collection.find(query).sort({ team_id: 1, delegate_name: 1 }).toArray()
+  const delegates = await Delegate.find(query).sort({ team_id: 1, delegate_name: 1 }).lean()
 
   // Get all delegates for stats and filter options
-  const allDelegates = await collection.find({}).toArray()
+  const allDelegates = await Delegate.find({}).lean()
 
   // Calculate stats from all delegates
   const stats: DelegateStats = {
@@ -56,7 +57,7 @@ async function getDelegatesData(filters: FilterParams) {
   }
 
   // Get unique teams and categories for filters
-  const teams = [...new Set(allDelegates.map((d) => d.team_id as number))].sort((a, b) => a - b)
+  const teams = [...new Set(allDelegates.map((d) => d.team_id))].sort((a, b) => a - b)
   const categories = [
     ...new Set(allDelegates.map((d) => d.category).filter((c): c is string => c !== null)),
   ].sort()
@@ -64,12 +65,12 @@ async function getDelegatesData(filters: FilterParams) {
   // Convert to client-safe format
   const clientDelegates: DelegateClient[] = delegates.map((d) => ({
     _id: d._id.toString(),
-    team_id: d.team_id as number,
-    delegate_name: d.delegate_name as string,
-    category: d.category as string | null,
-    attendance: d.attendance as boolean,
-    createdAt: (d.createdAt as Date)?.toISOString() || Date.now().toLocaleString(),
-    updatedAt: (d.updatedAt as Date)?.toISOString() || Date.now().toLocaleString(),
+    team_id: d.team_id,
+    delegate_name: d.delegate_name,
+    category: d.category,
+    attendance: d.attendance,
+    createdAt: new Date(d.createdAt).toISOString() || "",
+    updatedAt: new Date(d.updatedAt).toISOString() || "",
   }))
 
   return {

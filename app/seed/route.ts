@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { getDelegatesCollection } from "@/lib/mongodb"
+import connectDB from "@/lib/mongodb"
+import Delegate from "@/lib/models/delegate"
 
 // Sample data for seeding
 const sampleDelegates = [
@@ -46,31 +47,23 @@ export async function GET() {
   }
 
   try {
-    const collection = await getDelegatesCollection()
+    await connectDB()
 
     // Clear existing data
-    await collection.deleteMany({})
+    await Delegate.deleteMany({})
 
-    // Insert sample data with timestamps
-    const now = new Date()
+    // Insert sample data (timestamps are handled by Mongoose)
     const delegates = sampleDelegates.map((d) => ({
       ...d,
       attendance: false,
-      createdAt: now,
-      updatedAt: now,
     }))
 
-    const result = await collection.insertMany(delegates)
-
-    // Create indexes for optimal performance
-    await collection.createIndex({ team_id: 1 })
-    await collection.createIndex({ attendance: 1 })
-    await collection.createIndex({ category: 1 })
+    const result = await Delegate.insertMany(delegates)
 
     return NextResponse.json({
       success: true,
-      message: `Seeded ${result.insertedCount} delegates`,
-      insertedCount: result.insertedCount,
+      message: `Seeded ${result.length} delegates`,
+      insertedCount: result.length,
     })
   } catch (error) {
     console.error("Seed error:", error)

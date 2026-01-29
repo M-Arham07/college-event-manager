@@ -1,15 +1,3 @@
-import { ObjectId } from "mongodb"
-
-export interface Delegate {
-  _id: ObjectId
-  team_id: number
-  delegate_name: string
-  category: string | null
-  attendance: boolean
-  createdAt: Date
-  updatedAt: Date
-}
-
 export interface DelegateClient {
   _id: string
   team_id: number

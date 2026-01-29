@@ -1,8 +1,8 @@
 "use server"
 
-import { ObjectId } from "mongodb"
 import { revalidatePath } from "next/cache"
-import { getDelegatesCollection } from "@/lib/mongodb"
+import connectDB from "@/lib/mongodb"
+import Delegate from "@/lib/models/delegate"
 
 export async function toggleAttendance(
   id: string,
@@ -18,24 +18,15 @@ export async function toggleAttendance(
       return { success: false, error: "Invalid attendance value" }
     }
 
-    // Validate ObjectId format
-    if (!ObjectId.isValid(id)) {
-      return { success: false, error: "Invalid delegate ID format" }
-    }
+    await connectDB()
 
-    const collection = await getDelegatesCollection()
-    
-    const result = await collection.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          attendance,
-          updatedAt: new Date(),
-        },
-      }
+    const delegate = await Delegate.findByIdAndUpdate(
+      id,
+      { attendance, updatedAt: new Date() },
+      { new: true }
     )
 
-    if (result.matchedCount === 0) {
+    if (!delegate) {
       return { success: false, error: "Delegate not found" }
     }
 
