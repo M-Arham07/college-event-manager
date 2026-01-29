@@ -6,8 +6,9 @@ import { Plus } from 'lucide-react'
 import { StatsCards } from '@/components/stats-cards'
 import { AdvancedFilters } from '@/components/advanced-filters'
 import { DelegatesTable } from '@/components/delegates-table'
-import { CopyJsonButton } from '@/components/copy-json-button'
+import { DownloadAttendanceButton } from '@/components/download-attendance-button'
 import { AddDelegationModal } from '@/components/add-delegation-modal'
+import { CopyJsonButton } from '@/components/copy-json-button' // Import the missing component
 import type { DelegateClient, DelegateStats } from '@/lib/types'
 
 interface DashboardContentProps {
@@ -60,7 +61,7 @@ export function DashboardContent({
             <Plus className="h-4 w-4" />
             Add Delegation
           </Button>
-          <CopyJsonButton delegates={filteredDelegates} />
+          <DownloadAttendanceButton />
         </div>
       </div>
 
