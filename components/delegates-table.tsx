@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   Table,
   TableBody,
@@ -9,7 +10,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Trash2 } from "lucide-react"
 import { AttendanceCheckbox } from "./attendance-checkbox"
+import { DeleteConfirmationModal } from "./delete-confirmation-modal"
 import type { DelegateClient } from "@/lib/types"
 
 interface DelegatesTableProps {
@@ -18,6 +22,17 @@ interface DelegatesTableProps {
 }
 
 export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [selectedDelegate, setSelectedDelegate] = useState<DelegateClient | null>(null)
+
+  const handleDeleteClick = (delegate: DelegateClient) => {
+    setSelectedDelegate(delegate)
+    setDeleteModalOpen(true)
+  }
+
+  const getTeamMemberCount = (teamId: number) => {
+    return delegates.filter((d) => d.team_id === teamId).length
+  }
   if (delegates.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card/50 py-16">
@@ -42,6 +57,7 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
               <TableHead>Delegate Name</TableHead>
               <TableHead className="w-[150px]">Category</TableHead>
               <TableHead className="w-[140px]">Attendance</TableHead>
+              <TableHead className="w-[80px] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -68,11 +84,32 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
                     attendance={delegate.attendance}
                   />
                 </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteClick(delegate)}
+                    className="h-8 w-8 p-0 hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <DeleteConfirmationModal
+        open={deleteModalOpen}
+        onOpenChange={setDeleteModalOpen}
+        delegate={selectedDelegate}
+        teamMemberCount={selectedDelegate ? getTeamMemberCount(selectedDelegate.team_id) : 0}
+        onDeleteSuccess={() => {
+          setSelectedDelegate(null)
+          // Parent component will handle data refresh through revalidatePath
+        }}
+      />
     </div>
   )
 }

@@ -8,9 +8,13 @@ export interface DelegationPayload {
   delegate_1_name: string
   delegate_2_name?: string
   delegate_3_name?: string
+  delegate_4_name?: string
+  delegate_5_name?: string
   category: string | null
   include_delegate_2: boolean
   include_delegate_3: boolean
+  include_delegate_4: boolean
+  include_delegate_5: boolean
 }
 
 export interface DelegationResponse {
@@ -58,6 +62,24 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
       }
     }
 
+    // Validate delegate 4 if included
+    let delegate4Name: string | null = null
+    if (payload.include_delegate_4) {
+      delegate4Name = payload.delegate_4_name?.trim() || ""
+      if (!delegate4Name) {
+        return { success: false, error: "Delegate 4 name is required when included" }
+      }
+    }
+
+    // Validate delegate 5 if included
+    let delegate5Name: string | null = null
+    if (payload.include_delegate_5) {
+      delegate5Name = payload.delegate_5_name?.trim() || ""
+      if (!delegate5Name) {
+        return { success: false, error: "Delegate 5 name is required when included" }
+      }
+    }
+
     await connectDB()
 
     // Get the next team ID
@@ -86,6 +108,24 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
       documents.push({
         team_id: teamId,
         delegate_name: delegate3Name,
+        category: payload.category || null,
+        attendance: false,
+      })
+    }
+
+    if (payload.include_delegate_4 && delegate4Name) {
+      documents.push({
+        team_id: teamId,
+        delegate_name: delegate4Name,
+        category: payload.category || null,
+        attendance: false,
+      })
+    }
+
+    if (payload.include_delegate_5 && delegate5Name) {
+      documents.push({
+        team_id: teamId,
+        delegate_name: delegate5Name,
         category: payload.category || null,
         attendance: false,
       })

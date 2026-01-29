@@ -25,9 +25,13 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
   const [delegate1Name, setDelegate1Name] = useState('')
   const [delegate2Name, setDelegate2Name] = useState('')
   const [delegate3Name, setDelegate3Name] = useState('')
+  const [delegate4Name, setDelegate4Name] = useState('')
+  const [delegate5Name, setDelegate5Name] = useState('')
   const [category, setCategory] = useState('')
   const [includeDelegate2, setIncludeDelegate2] = useState(true)
   const [includeDelegate3, setIncludeDelegate3] = useState(true)
+  const [includeDelegate4, setIncludeDelegate4] = useState(false)
+  const [includeDelegate5, setIncludeDelegate5] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -47,6 +51,14 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
       newErrors.delegate3 = 'Delegate 3 name is required when included'
     }
 
+    if (includeDelegate4 && !delegate4Name.trim()) {
+      newErrors.delegate4 = 'Delegate 4 name is required when included'
+    }
+
+    if (includeDelegate5 && !delegate5Name.trim()) {
+      newErrors.delegate5 = 'Delegate 5 name is required when included'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -55,9 +67,13 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
     setDelegate1Name('')
     setDelegate2Name('')
     setDelegate3Name('')
+    setDelegate4Name('')
+    setDelegate5Name('')
     setCategory('')
     setIncludeDelegate2(true)
     setIncludeDelegate3(true)
+    setIncludeDelegate4(false)
+    setIncludeDelegate5(false)
     setErrors({})
   }
 
@@ -78,9 +94,13 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
         delegate_1_name: delegate1Name,
         delegate_2_name: delegate2Name,
         delegate_3_name: delegate3Name,
+        delegate_4_name: delegate4Name,
+        delegate_5_name: delegate5Name,
         category: category || null,
         include_delegate_2: includeDelegate2,
         include_delegate_3: includeDelegate3,
+        include_delegate_4: includeDelegate4,
+        include_delegate_5: includeDelegate5,
       })
 
       if (result.success) {
@@ -101,7 +121,9 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
   const isDelegate1Valid = delegate1Name.trim().length > 0
   const isDelegate2Valid = !includeDelegate2 || delegate2Name.trim().length > 0
   const isDelegate3Valid = !includeDelegate3 || delegate3Name.trim().length > 0
-  const isFormValid = isDelegate1Valid && isDelegate2Valid && isDelegate3Valid
+  const isDelegate4Valid = !includeDelegate4 || delegate4Name.trim().length > 0
+  const isDelegate5Valid = !includeDelegate5 || delegate5Name.trim().length > 0
+  const isFormValid = isDelegate1Valid && isDelegate2Valid && isDelegate3Valid && isDelegate4Valid && isDelegate5Valid
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -109,11 +131,11 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
         <DialogHeader>
           <DialogTitle>Add Delegation</DialogTitle>
           <DialogDescription>
-            Add up to 3 delegates to a new team. Team ID will be {nextTeamId}.
+            Add up to 5 delegates to a new team. Team ID will be {nextTeamId}.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="max-h-[450px] overflow-y-auto space-y-5 pr-4">
           {/* Delegate 1 */}
           <div className="space-y-2">
             <label className="text-sm font-medium">
@@ -188,6 +210,62 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
               className={errors.delegate3 ? 'border-destructive' : ''}
             />
             {errors.delegate3 && <p className="text-xs text-destructive">{errors.delegate3}</p>}
+          </div>
+
+          {/* Delegate 4 */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="include-delegate-4"
+                checked={includeDelegate4}
+                onCheckedChange={(checked) => setIncludeDelegate4(checked as boolean)}
+                disabled={isSubmitting}
+              />
+              <label htmlFor="include-delegate-4" className="text-sm font-medium cursor-pointer">
+                Include Delegate 4
+              </label>
+            </div>
+            <Input
+              placeholder="Enter delegate name"
+              value={delegate4Name}
+              onChange={(e) => {
+                setDelegate4Name(e.target.value)
+                if (errors.delegate4) {
+                  setErrors({ ...errors, delegate4: '' })
+                }
+              }}
+              disabled={!includeDelegate4 || isSubmitting}
+              className={errors.delegate4 ? 'border-destructive' : ''}
+            />
+            {errors.delegate4 && <p className="text-xs text-destructive">{errors.delegate4}</p>}
+          </div>
+
+          {/* Delegate 5 */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="include-delegate-5"
+                checked={includeDelegate5}
+                onCheckedChange={(checked) => setIncludeDelegate5(checked as boolean)}
+                disabled={isSubmitting}
+              />
+              <label htmlFor="include-delegate-5" className="text-sm font-medium cursor-pointer">
+                Include Delegate 5
+              </label>
+            </div>
+            <Input
+              placeholder="Enter delegate name"
+              value={delegate5Name}
+              onChange={(e) => {
+                setDelegate5Name(e.target.value)
+                if (errors.delegate5) {
+                  setErrors({ ...errors, delegate5: '' })
+                }
+              }}
+              disabled={!includeDelegate5 || isSubmitting}
+              className={errors.delegate5 ? 'border-destructive' : ''}
+            />
+            {errors.delegate5 && <p className="text-xs text-destructive">{errors.delegate5}</p>}
           </div>
 
           {/* Category */}
