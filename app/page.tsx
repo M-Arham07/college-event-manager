@@ -1,52 +1,19 @@
 import { Suspense } from "react"
+import { getServerSession } from "next-auth"
+import { redirect } from "next/navigation"
 import connectDB from "@/lib/mongodb"
 import Delegate from "@/lib/models/delegate"
-import { StatsCards } from "@/components/stats-cards"
-import { DelegatesFilters } from "@/components/delegates-filters"
-import { DelegatesTable } from "@/components/delegates-table"
-import { CopyJsonButton } from "@/components/copy-json-button"
+import { UserHeader } from "@/components/user-header"
+import { DashboardContent } from "@/components/dashboard-content"
 import { Toaster } from "@/components/ui/sonner"
-import type { DelegateClient, FilterParams, DelegateStats } from "@/lib/types"
 import { Skeleton } from "@/components/ui/skeleton"
+import type { DelegateClient, DelegateStats } from "@/lib/types"
 
-interface PageProps {
-  searchParams: Promise<FilterParams>
-}
-
-async function getDelegatesData(filters: FilterParams) {
+async function getDelegatesData() {
   await connectDB()
 
-  // Build query based on filters
-  const query: Record<string, unknown> = {}
-
-  // Search filter (case-insensitive partial match on name/category)
-  if (filters.search) {
-    const searchRegex = new RegExp(filters.search, "i")
-    query.$or = [{ delegate_name: searchRegex }, { category: searchRegex }]
-  }
-
-  // Team filter
-  if (filters.team && filters.team !== "all") {
-    query.team_id = parseInt(filters.team, 10)
-  }
-
-  // Category filter
-  if (filters.category && filters.category !== "all") {
-    query.category = filters.category
-  }
-
-  // Attendance filter
-  if (filters.attendance === "present") {
-    query.attendance = true
-  } else if (filters.attendance === "absent") {
-    query.attendance = false
-  }
-
-  // Fetch filtered delegates
-  const delegates = await Delegate.find(query).sort({ team_id: 1, delegate_name: 1 }).lean()
-
-  // Get all delegates for stats and filter options
-  const allDelegates = await Delegate.find({}).lean()
+  // Fetch all delegates from database
+  const allDelegates = await Delegate.find({}).sort({ team_id: 1, delegate_name: 1 }).lean()
 
   // Calculate stats from all delegates
   const stats: DelegateStats = {
@@ -56,21 +23,21 @@ async function getDelegatesData(filters: FilterParams) {
     uniqueTeams: new Set(allDelegates.map((d) => d.team_id)).size,
   }
 
-  // Get unique teams and categories for filters
+  // Get unique teams and categories for filter options
   const teams = [...new Set(allDelegates.map((d) => d.team_id))].sort((a, b) => a - b)
   const categories = [
     ...new Set(allDelegates.map((d) => d.category).filter((c): c is string => c !== null)),
   ].sort()
 
   // Convert to client-safe format
-  const clientDelegates: DelegateClient[] = delegates.map((d) => ({
+  const clientDelegates: DelegateClient[] = allDelegates.map((d) => ({
     _id: d._id.toString(),
     team_id: d.team_id,
     delegate_name: d.delegate_name,
     category: d.category,
     attendance: d.attendance,
-    createdAt: new Date(d.createdAt).toISOString() || "",
-    updatedAt: new Date(d.updatedAt).toISOString() || "",
+    createdAt: new Date(d.createdAt).toISOString(),
+    updatedAt: new Date(d.updatedAt).toISOString(),
   }))
 
   return {
@@ -90,59 +57,58 @@ function LoadingSkeleton() {
           <Skeleton key={i} className="h-[76px] rounded-lg" />
         ))}
       </div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Skeleton className="h-9 w-full sm:max-w-xs" />
-        <div className="flex gap-2">
-          <Skeleton className="h-9 w-[130px]" />
-          <Skeleton className="h-9 w-[140px]" />
-          <Skeleton className="h-9 w-[130px]" />
+      <div className="space-y-3">
+        <Skeleton className="h-10 w-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-[400px] rounded-lg" />
         </div>
       </div>
-      <div className="space-y-2">
-        <Skeleton className="h-5 w-40" />
-        <Skeleton className="h-[400px] rounded-lg" />
-      </div>
     </div>
   )
 }
 
-async function DashboardContent({ searchParams }: PageProps) {
-  const filters = await searchParams
-  const { delegates, stats, teams, categories, totalCount } = await getDelegatesData(filters)
+async function DashboardContentServer() {
+  const { delegates, stats, teams, categories, totalCount } = await getDelegatesData()
 
   return (
-    <div className="space-y-6">
-      <StatsCards stats={stats} />
-
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <DelegatesFilters teams={teams} categories={categories} />
-        <CopyJsonButton delegates={delegates} />
-      </div>
-
-      <DelegatesTable delegates={delegates} totalCount={totalCount} />
-    </div>
+    <DashboardContent 
+      initialDelegates={delegates}
+      stats={stats}
+      teams={teams}
+      categories={categories}
+      totalCount={totalCount}
+    />
   )
 }
 
-export default async function Page({ searchParams }: PageProps) {
+export default async function Page() {
+  const session = await getServerSession()
+  if (!session) {
+    redirect("/auth/signin")
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Misaal Attendance
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Track and manage delegate attendance
-          </p>
-        </header>
+        <div className="mb-8 space-y-6">
+          <UserHeader />
+          <header>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Misaal Attendance
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tech Stack: NEXT JS + TypeScript (arh4m07)
+            </p>
+          </header>
+        </div>
 
         <Suspense fallback={<LoadingSkeleton />}>
-          <DashboardContent searchParams={searchParams} />
+          <DashboardContentServer />
         </Suspense>
 
         <footer className="mt-12 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          Data stored in MongoDB
+          Data stored in MongoDB with instant state-based filtering
         </footer>
       </div>
       <Toaster position="bottom-right" />
