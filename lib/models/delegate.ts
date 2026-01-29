@@ -4,7 +4,11 @@ export interface IDelegateDocument extends Document {
   team_id: number
   delegate_name: string
   category: string | null
-  attendance: boolean
+  attendance: {
+    day1: boolean
+    day2: boolean
+    day3: boolean
+  }
   createdAt: Date
   updatedAt: Date
 }
@@ -26,9 +30,12 @@ const delegateSchema = new Schema<IDelegateDocument>(
       index: true,
     },
     attendance: {
-      type: Boolean,
-      default: false,
-      index: true,
+      type: {
+        day1: { type: Boolean, default: false },
+        day2: { type: Boolean, default: false },
+        day3: { type: Boolean, default: false },
+      },
+      default: { day1: false, day2: false, day3: false },
     },
   },
   {

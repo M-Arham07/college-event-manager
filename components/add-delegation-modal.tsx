@@ -23,40 +23,45 @@ interface AddDelegationModalProps {
 
 export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelegationModalProps) {
   const [delegate1Name, setDelegate1Name] = useState('')
+  const [delegate1Category, setDelegate1Category] = useState('')
   const [delegate2Name, setDelegate2Name] = useState('')
+  const [delegate2Category, setDelegate2Category] = useState('')
   const [delegate3Name, setDelegate3Name] = useState('')
+  const [delegate3Category, setDelegate3Category] = useState('')
   const [delegate4Name, setDelegate4Name] = useState('')
+  const [delegate4Category, setDelegate4Category] = useState('')
   const [delegate5Name, setDelegate5Name] = useState('')
-  const [category, setCategory] = useState('')
+  const [delegate5Category, setDelegate5Category] = useState('')
   const [includeDelegate2, setIncludeDelegate2] = useState(true)
   const [includeDelegate3, setIncludeDelegate3] = useState(true)
   const [includeDelegate4, setIncludeDelegate4] = useState(false)
   const [includeDelegate5, setIncludeDelegate5] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [category, setCategory] = useState('')
 
   // Validation
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
 
     if (!delegate1Name.trim()) {
-      newErrors.delegate1 = 'Delegate 1 name is required'
+      newErrors.delegate1_name = 'Delegate 1 name is required'
     }
 
     if (includeDelegate2 && !delegate2Name.trim()) {
-      newErrors.delegate2 = 'Delegate 2 name is required when included'
+      newErrors.delegate2_name = 'Delegate 2 name is required when included'
     }
 
     if (includeDelegate3 && !delegate3Name.trim()) {
-      newErrors.delegate3 = 'Delegate 3 name is required when included'
+      newErrors.delegate3_name = 'Delegate 3 name is required when included'
     }
 
     if (includeDelegate4 && !delegate4Name.trim()) {
-      newErrors.delegate4 = 'Delegate 4 name is required when included'
+      newErrors.delegate4_name = 'Delegate 4 name is required when included'
     }
 
     if (includeDelegate5 && !delegate5Name.trim()) {
-      newErrors.delegate5 = 'Delegate 5 name is required when included'
+      newErrors.delegate5_name = 'Delegate 5 name is required when included'
     }
 
     setErrors(newErrors)
@@ -65,11 +70,15 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
 
   const handleReset = () => {
     setDelegate1Name('')
+    setDelegate1Category('')
     setDelegate2Name('')
+    setDelegate2Category('')
     setDelegate3Name('')
+    setDelegate3Category('')
     setDelegate4Name('')
+    setDelegate4Category('')
     setDelegate5Name('')
-    setCategory('')
+    setDelegate5Category('')
     setIncludeDelegate2(true)
     setIncludeDelegate3(true)
     setIncludeDelegate4(false)
@@ -92,11 +101,15 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
     try {
       const result = await addDelegation({
         delegate_1_name: delegate1Name,
+        delegate_1_category: delegate1Category || null,
         delegate_2_name: delegate2Name,
+        delegate_2_category: delegate2Category || null,
         delegate_3_name: delegate3Name,
+        delegate_3_category: delegate3Category || null,
         delegate_4_name: delegate4Name,
+        delegate_4_category: delegate4Category || null,
         delegate_5_name: delegate5Name,
-        category: category || null,
+        delegate_5_category: delegate5Category || null,
         include_delegate_2: includeDelegate2,
         include_delegate_3: includeDelegate3,
         include_delegate_4: includeDelegate4,
@@ -123,37 +136,52 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
   const isDelegate3Valid = !includeDelegate3 || delegate3Name.trim().length > 0
   const isDelegate4Valid = !includeDelegate4 || delegate4Name.trim().length > 0
   const isDelegate5Valid = !includeDelegate5 || delegate5Name.trim().length > 0
-  const isFormValid = isDelegate1Valid && isDelegate2Valid && isDelegate3Valid && isDelegate4Valid && isDelegate5Valid
+  const isFormValid =
+    isDelegate1Valid && isDelegate2Valid && isDelegate3Valid && isDelegate4Valid && isDelegate5Valid
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add Delegation</DialogTitle>
           <DialogDescription>
-            Add up to 5 delegates to a new team. Team ID will be {nextTeamId}.
+            Add up to 5 delegates to a new team (Team ID: {nextTeamId}). Each delegate can have their own category.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[450px] overflow-y-auto space-y-5 pr-4">
-          {/* Delegate 1 */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Delegate 1 Name <span className="text-destructive">*</span>
-            </label>
-            <Input
-              placeholder="Enter delegate name"
-              value={delegate1Name}
-              onChange={(e) => {
-                setDelegate1Name(e.target.value)
-                if (errors.delegate1) {
-                  setErrors({ ...errors, delegate1: '' })
-                }
-              }}
-              disabled={isSubmitting}
-              className={errors.delegate1 ? 'border-destructive' : ''}
-            />
-            {errors.delegate1 && <p className="text-xs text-destructive">{errors.delegate1}</p>}
+        <div className="max-h-[500px] overflow-y-auto scrollbar-invisible space-y-4 pr-4">
+          {/* Delegate 1 - Always Required */}
+          <div className="space-y-2 rounded-lg border border-border bg-secondary/20 p-3">
+            <h3 className="text-sm font-semibold text-foreground">Delegate 1 <span className="text-destructive">*</span></h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Name</label>
+                <Input
+                  placeholder="Enter delegate name"
+                  value={delegate1Name}
+                  onChange={(e) => {
+                    setDelegate1Name(e.target.value)
+                    if (errors.delegate1_name) {
+                      setErrors({ ...errors, delegate1_name: '' })
+                    }
+                  }}
+                  disabled={isSubmitting}
+                  className={errors.delegate1_name ? 'border-destructive' : ''}
+                />
+                {errors.delegate1_name && (
+                  <p className="text-xs text-destructive">{errors.delegate1_name}</p>
+                )}
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">Category</label>
+                <Input
+                  placeholder="e.g., Engineering"
+                  value={delegate1Category}
+                  onChange={(e) => setDelegate1Category(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Delegate 2 */}
@@ -169,19 +197,39 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                 Include Delegate 2
               </label>
             </div>
-            <Input
-              placeholder="Enter delegate name"
-              value={delegate2Name}
-              onChange={(e) => {
-                setDelegate2Name(e.target.value)
-                if (errors.delegate2) {
-                  setErrors({ ...errors, delegate2: '' })
-                }
-              }}
-              disabled={!includeDelegate2 || isSubmitting}
-              className={errors.delegate2 ? 'border-destructive' : ''}
-            />
-            {errors.delegate2 && <p className="text-xs text-destructive">{errors.delegate2}</p>}
+            {includeDelegate2 && (
+              <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">Name</label>
+                    <Input
+                      placeholder="Enter delegate name"
+                      value={delegate2Name}
+                      onChange={(e) => {
+                        setDelegate2Name(e.target.value)
+                        if (errors.delegate2_name) {
+                          setErrors({ ...errors, delegate2_name: '' })
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className={errors.delegate2_name ? 'border-destructive' : ''}
+                    />
+                    {errors.delegate2_name && (
+                      <p className="text-xs text-destructive">{errors.delegate2_name}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">Category</label>
+                    <Input
+                      placeholder="e.g., Engineering"
+                      value={delegate2Category}
+                      onChange={(e) => setDelegate2Category(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Delegate 3 */}
@@ -197,19 +245,39 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                 Include Delegate 3
               </label>
             </div>
-            <Input
-              placeholder="Enter delegate name"
-              value={delegate3Name}
-              onChange={(e) => {
-                setDelegate3Name(e.target.value)
-                if (errors.delegate3) {
-                  setErrors({ ...errors, delegate3: '' })
-                }
-              }}
-              disabled={!includeDelegate3 || isSubmitting}
-              className={errors.delegate3 ? 'border-destructive' : ''}
-            />
-            {errors.delegate3 && <p className="text-xs text-destructive">{errors.delegate3}</p>}
+            {includeDelegate3 && (
+              <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">Name</label>
+                    <Input
+                      placeholder="Enter delegate name"
+                      value={delegate3Name}
+                      onChange={(e) => {
+                        setDelegate3Name(e.target.value)
+                        if (errors.delegate3_name) {
+                          setErrors({ ...errors, delegate3_name: '' })
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className={errors.delegate3_name ? 'border-destructive' : ''}
+                    />
+                    {errors.delegate3_name && (
+                      <p className="text-xs text-destructive">{errors.delegate3_name}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">Category</label>
+                    <Input
+                      placeholder="e.g., Engineering"
+                      value={delegate3Category}
+                      onChange={(e) => setDelegate3Category(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Delegate 4 */}
@@ -225,19 +293,39 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                 Include Delegate 4
               </label>
             </div>
-            <Input
-              placeholder="Enter delegate name"
-              value={delegate4Name}
-              onChange={(e) => {
-                setDelegate4Name(e.target.value)
-                if (errors.delegate4) {
-                  setErrors({ ...errors, delegate4: '' })
-                }
-              }}
-              disabled={!includeDelegate4 || isSubmitting}
-              className={errors.delegate4 ? 'border-destructive' : ''}
-            />
-            {errors.delegate4 && <p className="text-xs text-destructive">{errors.delegate4}</p>}
+            {includeDelegate4 && (
+              <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">Name</label>
+                    <Input
+                      placeholder="Enter delegate name"
+                      value={delegate4Name}
+                      onChange={(e) => {
+                        setDelegate4Name(e.target.value)
+                        if (errors.delegate4_name) {
+                          setErrors({ ...errors, delegate4_name: '' })
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className={errors.delegate4_name ? 'border-destructive' : ''}
+                    />
+                    {errors.delegate4_name && (
+                      <p className="text-xs text-destructive">{errors.delegate4_name}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">Category</label>
+                    <Input
+                      placeholder="e.g., Engineering"
+                      value={delegate4Category}
+                      onChange={(e) => setDelegate4Category(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Delegate 5 */}
@@ -253,42 +341,39 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                 Include Delegate 5
               </label>
             </div>
-            <Input
-              placeholder="Enter delegate name"
-              value={delegate5Name}
-              onChange={(e) => {
-                setDelegate5Name(e.target.value)
-                if (errors.delegate5) {
-                  setErrors({ ...errors, delegate5: '' })
-                }
-              }}
-              disabled={!includeDelegate5 || isSubmitting}
-              className={errors.delegate5 ? 'border-destructive' : ''}
-            />
-            {errors.delegate5 && <p className="text-xs text-destructive">{errors.delegate5}</p>}
-          </div>
-
-          {/* Category */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Category <span className="text-muted-foreground">(applies to all)</span>
-            </label>
-            <Input
-              placeholder="e.g., Engineering, Marketing"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              disabled={isSubmitting}
-            />
-            <p className="text-xs text-muted-foreground">
-              Leave empty if no category applies
-            </p>
-          </div>
-
-          {/* Team info */}
-          <div className="rounded-lg bg-secondary/50 p-3">
-            <p className="text-sm text-muted-foreground">
-              Team number will be <span className="font-semibold text-foreground">{nextTeamId}</span>
-            </p>
+            {includeDelegate5 && (
+              <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">Name</label>
+                    <Input
+                      placeholder="Enter delegate name"
+                      value={delegate5Name}
+                      onChange={(e) => {
+                        setDelegate5Name(e.target.value)
+                        if (errors.delegate5_name) {
+                          setErrors({ ...errors, delegate5_name: '' })
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className={errors.delegate5_name ? 'border-destructive' : ''}
+                    />
+                    {errors.delegate5_name && (
+                      <p className="text-xs text-destructive">{errors.delegate5_name}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground">Category</label>
+                    <Input
+                      placeholder="e.g., Engineering"
+                      value={delegate5Category}
+                      onChange={(e) => setDelegate5Category(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

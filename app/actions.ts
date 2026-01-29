@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache"
 import connectDB from "@/lib/mongodb"
 import Delegate from "@/lib/models/delegate"
+import type { Attendance } from "@/lib/types"
 
-export async function toggleAttendance(
+export async function updateAttendance(
   id: string,
-  attendance: boolean
+  attendance: Attendance
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Validate input
@@ -14,8 +15,13 @@ export async function toggleAttendance(
       return { success: false, error: "Invalid delegate ID" }
     }
 
-    if (typeof attendance !== "boolean") {
-      return { success: false, error: "Invalid attendance value" }
+    if (
+      !attendance ||
+      typeof attendance.day1 !== "boolean" ||
+      typeof attendance.day2 !== "boolean" ||
+      typeof attendance.day3 !== "boolean"
+    ) {
+      return { success: false, error: "Invalid attendance payload" }
     }
 
     await connectDB()
@@ -33,7 +39,7 @@ export async function toggleAttendance(
     revalidatePath("/")
     return { success: true }
   } catch (error) {
-    console.error("Error toggling attendance:", error)
+    console.error("Error updating attendance:", error)
     return { success: false, error: "Failed to update attendance" }
   }
 }

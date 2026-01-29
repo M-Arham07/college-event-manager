@@ -96,4 +96,30 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Custom invisible scrollbar for modal content */
+  .scrollbar-invisible::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollbar-invisible::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-invisible::-webkit-scrollbar-thumb {
+    background: transparent;
+  }
+
+  .scrollbar-invisible::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--color-muted));
+  }
+
+  /* Firefox */
+  .scrollbar-invisible {
+    scrollbar-color: transparent transparent;
+  }
+
+  .scrollbar-invisible:hover {
+    scrollbar-color: hsl(var(--color-muted)) transparent;
+  }
 }

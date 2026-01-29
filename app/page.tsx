@@ -18,8 +18,8 @@ async function getDelegatesData() {
   // Calculate stats from all delegates
   const stats: DelegateStats = {
     total: allDelegates.length,
-    present: allDelegates.filter((d) => d.attendance).length,
-    absent: allDelegates.filter((d) => !d.attendance).length,
+    present: allDelegates.filter((d) => d.attendance.day1 && d.attendance.day2 && d.attendance.day3).length,
+    absent: allDelegates.filter((d) => !(d.attendance.day1 && d.attendance.day2 && d.attendance.day3)).length,
     uniqueTeams: new Set(allDelegates.map((d) => d.team_id)).size,
   }
 

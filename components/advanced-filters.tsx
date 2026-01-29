@@ -74,9 +74,9 @@ export function AdvancedFilters({
 
     // Attendance filter
     if (filters.attendanceFilter === 'present') {
-      result = result.filter((delegate) => delegate.attendance === true)
+      result = result.filter((delegate) => delegate.attendance.day1 && delegate.attendance.day2 && delegate.attendance.day3)
     } else if (filters.attendanceFilter === 'absent') {
-      result = result.filter((delegate) => delegate.attendance === false)
+      result = result.filter((delegate) => !(delegate.attendance.day1 && delegate.attendance.day2 && delegate.attendance.day3))
     }
 
     // Sorting
@@ -88,7 +88,9 @@ export function AdvancedFilters({
       } else if (filters.sortBy === 'team') {
         compareValue = a.team_id - b.team_id || a.delegate_name.localeCompare(b.delegate_name)
       } else if (filters.sortBy === 'attendance') {
-        compareValue = (a.attendance ? 1 : 0) - (b.attendance ? 1 : 0)
+        const aPresent = a.attendance.day1 && a.attendance.day2 && a.attendance.day3 ? 1 : 0
+        const bPresent = b.attendance.day1 && b.attendance.day2 && b.attendance.day3 ? 1 : 0
+        compareValue = aPresent - bPresent
       }
 
       return filters.sortOrder === 'asc' ? compareValue : -compareValue

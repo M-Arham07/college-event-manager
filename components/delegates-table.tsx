@@ -12,9 +12,10 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
-import { AttendanceCheckbox } from "./attendance-checkbox"
+import { AttendanceModal } from "./attendance-modal"
 import { DeleteConfirmationModal } from "./delete-confirmation-modal"
 import type { DelegateClient } from "@/lib/types"
+import { AttendanceCheckbox } from "./attendance-checkbox" // Import AttendanceCheckbox
 
 interface DelegatesTableProps {
   delegates: DelegateClient[]
@@ -23,6 +24,7 @@ interface DelegatesTableProps {
 
 export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [attendanceModalOpen, setAttendanceModalOpen] = useState(false)
   const [selectedDelegate, setSelectedDelegate] = useState<DelegateClient | null>(null)
 
   const handleDeleteClick = (delegate: DelegateClient) => {
@@ -30,8 +32,18 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
     setDeleteModalOpen(true)
   }
 
+  const handleAttendanceClick = (delegate: DelegateClient) => {
+    setSelectedDelegate(delegate)
+    setAttendanceModalOpen(true)
+  }
+
   const getTeamMemberCount = (teamId: number) => {
     return delegates.filter((d) => d.team_id === teamId).length
+  }
+
+  const getAttendanceStatus = (delegate: DelegateClient) => {
+    const isPresent = delegate.attendance.day1 && delegate.attendance.day2 && delegate.attendance.day3
+    return isPresent
   }
   if (delegates.length === 0) {
     return (
@@ -79,10 +91,24 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
                   )}
                 </TableCell>
                 <TableCell>
-                  <AttendanceCheckbox
-                    id={delegate._id}
-                    attendance={delegate.attendance}
-                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAttendanceClick(delegate)}
+                    >
+                      Attendance
+                    </Button>
+                    <Badge
+                      className={`font-bold ${
+                        getAttendanceStatus(delegate)
+                          ? "bg-green-600 text-white hover:bg-green-700"
+                          : "bg-red-600 text-white hover:bg-red-700"
+                      }`}
+                    >
+                      {getAttendanceStatus(delegate) ? "P" : "A"}
+                    </Badge>
+                  </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
@@ -100,6 +126,12 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
         </Table>
       </div>
 
+      <AttendanceModal
+        open={attendanceModalOpen}
+        onOpenChange={setAttendanceModalOpen}
+        delegate={selectedDelegate}
+      />
+
       <DeleteConfirmationModal
         open={deleteModalOpen}
         onOpenChange={setDeleteModalOpen}
@@ -107,7 +139,6 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
         teamMemberCount={selectedDelegate ? getTeamMemberCount(selectedDelegate.team_id) : 0}
         onDeleteSuccess={() => {
           setSelectedDelegate(null)
-          // Parent component will handle data refresh through revalidatePath
         }}
       />
     </div>

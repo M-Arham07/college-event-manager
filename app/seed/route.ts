@@ -55,7 +55,7 @@ export async function GET() {
     // Insert sample data (timestamps are handled by Mongoose)
     const delegates = sampleDelegates.map((d) => ({
       ...d,
-      attendance: false,
+      attendance: { day1: false, day2: false, day3: false },
     }))
 
     const result = await Delegate.insertMany(delegates)
