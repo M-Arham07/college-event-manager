@@ -98,7 +98,7 @@ export default async function Page() {
               Misaal Attendance
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Tech Stack: NEXT JS + TypeScript (arh4m07)
+              Track and manage delegate attendance with powerful real-time filtering
             </p>
           </header>
         </div>

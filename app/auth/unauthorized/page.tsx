@@ -19,12 +19,12 @@ export default function Unauthorized() {
           <div className="space-y-2 text-center">
             <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
             <p className="text-sm text-muted-foreground">
-             Please contact me on whatsapp 03121497639 for access
+              Your email is not authorized to access this application.
             </p>
           </div>
 
           <p className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
-            Contact 03121497639 M-Arham07 
+            If you believe you should have access, please contact your administrator.
           </p>
 
           <Button

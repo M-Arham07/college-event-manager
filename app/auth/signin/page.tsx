@@ -23,8 +23,8 @@ export default function SignIn() {
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            You need special access from <a  className="text-blue-400" href="https://wa.me/923121497639"> M.Arham Bin Khurram </a>. Please use your authorized email
-            address. 
+            You need special access to use this application. Please use your authorized email
+            address.
           </p>
         </div>
       </Card>

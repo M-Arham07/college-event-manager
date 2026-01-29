@@ -1,10 +1,13 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Plus } from 'lucide-react'
 import { StatsCards } from '@/components/stats-cards'
 import { AdvancedFilters } from '@/components/advanced-filters'
 import { DelegatesTable } from '@/components/delegates-table'
 import { CopyJsonButton } from '@/components/copy-json-button'
+import { AddDelegationModal } from '@/components/add-delegation-modal'
 import type { DelegateClient, DelegateStats } from '@/lib/types'
 
 interface DashboardContentProps {
@@ -23,6 +26,11 @@ export function DashboardContent({
   totalCount,
 }: DashboardContentProps) {
   const [filteredDelegates, setFilteredDelegates] = useState<DelegateClient[]>(initialDelegates)
+  const [addDelegationOpen, setAddDelegationOpen] = useState(false)
+
+  // Calculate next team ID
+  const maxTeamId = teams.length > 0 ? Math.max(...teams) : 0
+  const nextTeamId = maxTeamId + 1
 
   const handleFilteredDelegatesChange = useCallback((delegates: DelegateClient[]) => {
     setFilteredDelegates(delegates)
@@ -44,10 +52,25 @@ export function DashboardContent({
           Showing <span className="font-semibold text-foreground">{filteredDelegates.length}</span> of{' '}
           <span className="font-semibold text-foreground">{totalCount}</span> delegates
         </div>
-        <CopyJsonButton delegates={filteredDelegates} />
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setAddDelegationOpen(true)}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Delegation
+          </Button>
+          <CopyJsonButton delegates={filteredDelegates} />
+        </div>
       </div>
 
       <DelegatesTable delegates={filteredDelegates} totalCount={totalCount} />
+
+      <AddDelegationModal
+        open={addDelegationOpen}
+        onOpenChange={setAddDelegationOpen}
+        nextTeamId={nextTeamId}
+      />
     </div>
   )
 }
