@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
 import connectDB from "@/lib/mongodb"
 import Delegate from "@/lib/models/delegate"
+import { getAccessMode } from "@/lib/access"
 import { UserHeader } from "@/components/user-header"
 import { DashboardContent } from "@/components/dashboard-content"
 import { Toaster } from "@/components/ui/sonner"
@@ -71,6 +72,7 @@ function LoadingSkeleton() {
 
 async function DashboardContentServer() {
   const { delegates, stats, teams, categories, totalCount } = await getDelegatesData()
+  const access = await getAccessMode()
 
   return (
     <DashboardContent 
@@ -79,6 +81,8 @@ async function DashboardContentServer() {
       teams={teams}
       categories={categories}
       totalCount={totalCount}
+      accessMode={access.mode}
+      userEmail={access.email}
     />
   )
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import connectDB from "@/lib/mongodb"
 import Delegate from "@/lib/models/delegate"
+import { requireEditAccess } from "@/lib/access"
 
 export interface DeleteResponse {
   success: boolean
@@ -15,6 +16,13 @@ export interface DeleteResponse {
  */
 export async function deleteDelegate(id: string): Promise<DeleteResponse> {
   try {
+    // Check authorization
+    try {
+      await requireEditAccess()
+    } catch (error) {
+      return { success: false, error: "Unauthorized: View-only access" }
+    }
+
     if (!id || typeof id !== "string") {
       return { success: false, error: "Invalid delegate ID" }
     }
@@ -40,6 +48,13 @@ export async function deleteDelegate(id: string): Promise<DeleteResponse> {
  */
 export async function deleteTeam(teamId: number): Promise<DeleteResponse> {
   try {
+    // Check authorization
+    try {
+      await requireEditAccess()
+    } catch (error) {
+      return { success: false, error: "Unauthorized: View-only access" }
+    }
+
     if (typeof teamId !== "number" || teamId < 1) {
       return { success: false, error: "Invalid team ID" }
     }
