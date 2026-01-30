@@ -47,23 +47,6 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
       return { success: false, error: "Delegate 1 name is required" }
     }
 
-    // Validate delegates 2-10 if included
-    const delegateNames: (string | null)[] = [delegate1Name]
-    for (let i = 2; i <= 10; i++) {
-      const includeKey = `include_delegate_${i}`
-      const nameKey = `delegate_${i}_name`
-      const categoryKey = `delegate_${i}_category`
-
-      let delegateName: string | null = null
-      if (payload[includeKey]) {
-        delegateName = payload[nameKey]?.trim() || ""
-        if (!delegateName) {
-          return { success: false, error: `Delegate ${i} name is required when included` }
-        }
-      }
-      delegateNames.push(delegateName)
-    }
-
     await connectDB()
 
     // Get the next team ID
@@ -86,10 +69,15 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
       const nameKey = `delegate_${i}_name`
       const categoryKey = `delegate_${i}_category`
 
-      if (payload[includeKey] && delegateNames[i - 1]) {
+      if (payload[includeKey]) {
+        const delegateName = payload[nameKey]?.trim()
+        if (!delegateName) {
+          return { success: false, error: `Delegate ${i} name is required when included` }
+        }
+
         documents.push({
           team_id: teamId,
-          delegate_name: delegateNames[i - 1],
+          delegate_name: delegateName,
           category: payload[categoryKey] || null,
           attendance: { day1: false, day2: false, day3: false },
           isHead: false,
