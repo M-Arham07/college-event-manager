@@ -47,8 +47,6 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
       return { success: false, error: "Delegate 1 name is required" }
     }
 
-    await connectDB()
-
     // Get the next team ID
     const teamId = await getNextTeamId()
 
