@@ -4,6 +4,7 @@ export interface IDelegateDocument extends Document {
   team_id: number
   delegate_name: string
   category: string | null
+  isHead: boolean
   attendance: {
     day1: boolean
     day2: boolean
@@ -28,6 +29,10 @@ const delegateSchema = new Schema<IDelegateDocument>(
       type: String,
       default: null,
       index: true,
+    },
+    isHead: {
+      type: Boolean,
+      default: false,
     },
     attendance: {
       type: {

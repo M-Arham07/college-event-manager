@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
+import { Trash2, Crown } from "lucide-react"
 import { AttendanceModal } from "./attendance-modal"
 import { DeleteConfirmationModal } from "./delete-confirmation-modal"
 import type { DelegateClient } from "@/lib/types"
@@ -81,7 +81,12 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
                   </Badge>
                 </TableCell>
                 <TableCell className="font-medium text-foreground">
-                  {delegate.delegate_name}
+                  <div className="flex items-center gap-2">
+                    {delegate.delegate_name}
+                    {delegate.isHead && (
+                      <Crown className="h-4 w-4 text-green-600 animate-pulse" aria-label="Head delegate" />
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {delegate.category ? (

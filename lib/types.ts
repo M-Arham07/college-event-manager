@@ -9,6 +9,7 @@ export interface DelegateClient {
   team_id: number
   delegate_name: string
   category: string | null
+  isHead: boolean
   attendance: Attendance
   createdAt: string
   updatedAt: string

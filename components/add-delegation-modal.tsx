@@ -152,7 +152,13 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
         <div className="max-h-[500px] overflow-y-auto scrollbar-invisible space-y-4 pr-4">
           {/* Delegate 1 - Always Required */}
           <div className="space-y-2 rounded-lg border border-border bg-secondary/20 p-3">
-            <h3 className="text-sm font-semibold text-foreground">Delegate 1 <span className="text-destructive">*</span></h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-foreground">Delegate 1 <span className="text-destructive">*</span></h3>
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+                <span className="h-2 w-2 rounded-full bg-green-600"></span>
+                Head
+              </span>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Name</label>

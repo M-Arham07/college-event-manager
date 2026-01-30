@@ -7,6 +7,7 @@ export interface DelegateDTO {
   team_id: number
   delegate_name: string
   category: string | null
+  isHead: boolean
   attendance: {
     day1: boolean
     day2: boolean
@@ -26,6 +27,7 @@ export async function GET() {
       team_id: doc.team_id,
       delegate_name: doc.delegate_name,
       category: doc.category || null,
+      isHead: doc.isHead || false,
       attendance: {
         day1: doc.attendance?.day1 || false,
         day2: doc.attendance?.day2 || false,

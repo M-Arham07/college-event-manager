@@ -95,6 +95,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         team_id: teamId,
         delegate_name: delegate1Name,
         category: payload.delegate_1_category || null,
+        isHead: true,
         attendance: { day1: false, day2: false, day3: false },
       },
     ]
@@ -104,6 +105,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         team_id: teamId,
         delegate_name: delegate2Name,
         category: payload.delegate_2_category || null,
+        isHead: false,
         attendance: { day1: false, day2: false, day3: false },
       })
     }
@@ -113,6 +115,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         team_id: teamId,
         delegate_name: delegate3Name,
         category: payload.delegate_3_category || null,
+        isHead: false,
         attendance: { day1: false, day2: false, day3: false },
       })
     }
@@ -122,6 +125,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         team_id: teamId,
         delegate_name: delegate4Name,
         category: payload.delegate_4_category || null,
+        isHead: false,
         attendance: { day1: false, day2: false, day3: false },
       })
     }
@@ -131,6 +135,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         team_id: teamId,
         delegate_name: delegate5Name,
         category: payload.delegate_5_category || null,
+        isHead: false,
         attendance: { day1: false, day2: false, day3: false },
       })
     }
