@@ -20,10 +20,30 @@ export interface DelegationPayload {
   delegate_5_name?: string
   delegate_5_category: string | null
   delegate_5_is_head: boolean
+  delegate_6_name?: string
+  delegate_6_category: string | null
+  delegate_6_is_head: boolean
+  delegate_7_name?: string
+  delegate_7_category: string | null
+  delegate_7_is_head: boolean
+  delegate_8_name?: string
+  delegate_8_category: string | null
+  delegate_8_is_head: boolean
+  delegate_9_name?: string
+  delegate_9_category: string | null
+  delegate_9_is_head: boolean
+  delegate_10_name?: string
+  delegate_10_category: string | null
+  delegate_10_is_head: boolean
   include_delegate_2: boolean
   include_delegate_3: boolean
   include_delegate_4: boolean
   include_delegate_5: boolean
+  include_delegate_6: boolean
+  include_delegate_7: boolean
+  include_delegate_8: boolean
+  include_delegate_9: boolean
+  include_delegate_10: boolean
 }
 
 export interface DelegationResponse {
@@ -89,6 +109,28 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
       }
     }
 
+    // Validate delegates 6-10 if included
+    const delegateNames: Record<number, string | null> = {
+      6: null,
+      7: null,
+      8: null,
+      9: null,
+      10: null,
+    }
+
+    for (let i = 6; i <= 10; i++) {
+      const includeKey = `include_delegate_${i}` as keyof DelegationPayload
+      const nameKey = `delegate_${i}_name` as keyof DelegationPayload
+
+      if ((payload[includeKey] as boolean)) {
+        const name = (payload[nameKey] as string)?.trim() || ""
+        if (!name) {
+          return { success: false, error: `Delegate ${i} name is required when included` }
+        }
+        delegateNames[i] = name
+      }
+    }
+
     await connectDB()
 
     // Get the next team ID
@@ -143,6 +185,20 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         attendance: { day1: false, day2: false, day3: false },
         isHead: payload.delegate_5_is_head,
       })
+    }
+
+    // Add delegates 6-10
+    for (let i = 6; i <= 10; i++) {
+      if (delegateNames[i]) {
+        const categoryKey = `delegate_${i}_category` as keyof DelegationPayload
+        documents.push({
+          team_id: teamId,
+          delegate_name: delegateNames[i],
+          category: (payload[categoryKey] as string | null) || null,
+          attendance: { day1: false, day2: false, day3: false },
+          isHead: false,
+        })
+      }
     }
 
     // Insert documents

@@ -37,7 +37,7 @@ function groupDelegatesByTeam(delegates: DelegateDTO[]): TeamRow[] {
       return {
         teamId,
         delegateCount: delegateList.length,
-        delegates: sortedDelegates.slice(0, 5).map((d) => ({
+        delegates: sortedDelegates.slice(0, 10).map((d) => ({
           name: d.delegate_name,
           category: d.category,
           day1: d.attendance.day1,
@@ -114,13 +114,38 @@ export async function generateAttendanceSheet(delegates: DelegateDTO[]): Promise
     'D1',
     'D2',
     'D3',
+    'Name 6',
+    'Cat 6',
+    'D1',
+    'D2',
+    'D3',
+    'Name 7',
+    'Cat 7',
+    'D1',
+    'D2',
+    'D3',
+    'Name 8',
+    'Cat 8',
+    'D1',
+    'D2',
+    'D3',
+    'Name 9',
+    'Cat 9',
+    'D1',
+    'D2',
+    'D3',
+    'Name 10',
+    'Cat 10',
+    'D1',
+    'D2',
+    'D3',
   ]
 
   const tableData = teamRows.map((team) => {
     const row: string[] = [team.teamId.toString(), team.delegateCount.toString()]
 
-    // Add up to 5 delegates
-    for (let i = 0; i < 5; i++) {
+    // Add up to 10 delegates
+    for (let i = 0; i < 10; i++) {
       const delegate = team.delegates[i]
       if (delegate) {
         row.push(
@@ -181,6 +206,21 @@ export async function generateAttendanceSheet(delegates: DelegateDTO[]): Promise
       24: { halign: 'center', cellWidth: 6 },
       25: { halign: 'center', cellWidth: 6 },
       26: { halign: 'center', cellWidth: 6 },
+      29: { halign: 'center', cellWidth: 6 },
+      30: { halign: 'center', cellWidth: 6 },
+      31: { halign: 'center', cellWidth: 6 },
+      34: { halign: 'center', cellWidth: 6 },
+      35: { halign: 'center', cellWidth: 6 },
+      36: { halign: 'center', cellWidth: 6 },
+      39: { halign: 'center', cellWidth: 6 },
+      40: { halign: 'center', cellWidth: 6 },
+      41: { halign: 'center', cellWidth: 6 },
+      44: { halign: 'center', cellWidth: 6 },
+      45: { halign: 'center', cellWidth: 6 },
+      46: { halign: 'center', cellWidth: 6 },
+      49: { halign: 'center', cellWidth: 6 },
+      50: { halign: 'center', cellWidth: 6 },
+      51: { halign: 'center', cellWidth: 6 },
     },
   })
 
