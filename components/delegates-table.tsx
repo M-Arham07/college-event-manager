@@ -20,9 +20,10 @@ import { AttendanceCheckbox } from "./attendance-checkbox" // Import AttendanceC
 interface DelegatesTableProps {
   delegates: DelegateClient[]
   totalCount: number
+  isEditMode?: boolean
 }
 
-export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
+export function DelegatesTable({ delegates, totalCount, isEditMode = true }: DelegatesTableProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false)
   const [selectedDelegate, setSelectedDelegate] = useState<DelegateClient | null>(null)
@@ -107,6 +108,7 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
                       variant="outline"
                       size="sm"
                       onClick={() => handleAttendanceClick(delegate)}
+                      disabled={!isEditMode}
                     >
                       Attendance
                     </Button>
@@ -122,14 +124,16 @@ export function DelegatesTable({ delegates, totalCount }: DelegatesTableProps) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteClick(delegate)}
-                    className="h-8 w-8 p-0 hover:bg-destructive/10"
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                  {isEditMode && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteClick(delegate)}
+                      className="h-8 w-8 p-0 hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

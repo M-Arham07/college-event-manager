@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import connectDB from "@/lib/mongodb"
 import Delegate from "@/lib/models/delegate"
+import { requireEditAccess } from "@/lib/access"
 import type { Attendance } from "@/lib/types"
 
 export async function updateAttendance(
@@ -10,6 +11,13 @@ export async function updateAttendance(
   attendance: Attendance
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Check authorization
+    try {
+      await requireEditAccess()
+    } catch (error) {
+      return { success: false, error: "Unauthorized: View-only access" }
+    }
+
     // Validate input
     if (!id || typeof id !== "string") {
       return { success: false, error: "Invalid delegate ID" }

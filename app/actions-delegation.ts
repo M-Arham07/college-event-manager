@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import connectDB from "@/lib/mongodb"
 import Delegate from "@/lib/models/delegate"
+import { requireEditAccess } from "@/lib/access"
 
 export interface DelegationPayload {
   delegate_1_name: string
@@ -63,10 +64,17 @@ async function getNextTeamId(): Promise<number> {
 }
 
 /**
- * Add a new delegation (1-3 delegates in a single team)
+ * Add a new delegation (1-10 delegates in a single team)
  */
 export async function addDelegation(payload: DelegationPayload): Promise<DelegationResponse> {
   try {
+    // Check authorization
+    try {
+      await requireEditAccess()
+    } catch (error) {
+      return { success: false, error: "Unauthorized: View-only access" }
+    }
+
     // Validate delegate 1 (required)
     const delegate1Name = payload.delegate_1_name.trim()
     if (!delegate1Name) {

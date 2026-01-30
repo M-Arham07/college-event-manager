@@ -16,25 +16,9 @@ const handler = NextAuth({
   },
   callbacks: {
     async signIn({ user }) {
-      if (!user.email) {
-        return false
-      }
-
-      try {
-        await connectDB()
-        const allowedUser = await AllowedUser.findOne({
-          email: user.email.toLowerCase(),
-        })
-
-        if (!allowedUser) {
-          return "/auth/unauthorized"
-        }
-
-        return true
-      } catch (error) {
-        console.error("Error checking allowed users:", error)
-        return false
-      }
+      // Allow all users to sign in - access control is handled in app pages/actions
+      // View-only users will have restricted UI/functionality
+      return true
     },
     async jwt({ token, user }) {
       if (user) {
