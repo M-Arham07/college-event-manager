@@ -77,13 +77,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   nameColumn: {
-    width: "12%",
+    width: "6%",
   },
   categoryColumn: {
-    width: "10%",
+    width: "4%",
   },
   attendanceColumn: {
-    width: "3.5%",
+    width: "1.8%",
     textAlign: "center",
   },
   statusBadge: {
@@ -155,10 +155,10 @@ export default function AttendanceSheetPDF({ teamRows }: AttendanceSheetPDFProps
             <Text style={[styles.headerCell, styles.teamColumn]}>Team</Text>
             <Text style={[styles.headerCell, styles.countColumn]}>Count</Text>
 
-            {Array.from({ length: 5 }).map((_, i) => (
+            {Array.from({ length: 10 }).map((_, i) => (
               <View key={i} style={styles.delegateBlock}>
-                <Text style={[styles.headerCell, styles.nameColumn]}>Name {i + 1}</Text>
-                <Text style={[styles.headerCell, styles.categoryColumn]}>Category</Text>
+                <Text style={[styles.headerCell, styles.nameColumn]}>D{i + 1}</Text>
+                <Text style={[styles.headerCell, styles.categoryColumn]}>Cat</Text>
                 <Text style={[styles.headerCell, styles.attendanceColumn]}>D1</Text>
                 <Text style={[styles.headerCell, styles.attendanceColumn]}>D2</Text>
                 <Text style={[styles.headerCell, styles.attendanceColumn]}>D3</Text>
@@ -172,15 +172,15 @@ export default function AttendanceSheetPDF({ teamRows }: AttendanceSheetPDFProps
               <Text style={[styles.tableCell, styles.teamColumn]}>{team.teamId}</Text>
               <Text style={[styles.tableCell, styles.countColumn]}>{team.delegateCount}</Text>
 
-              {Array.from({ length: 5 }).map((_, delegateIndex) => {
+              {Array.from({ length: 10 }).map((_, delegateIndex) => {
                 const delegate = team.delegates[delegateIndex]
                 return (
                   <View key={delegateIndex} style={styles.delegateBlock}>
                     <Text style={[styles.tableCell, styles.nameColumn]}>
-                      {delegate ? delegate.name.substring(0, 12) : "—"}
+                      {delegate ? delegate.name.substring(0, 6) : "—"}
                     </Text>
                     <Text style={[styles.tableCell, styles.categoryColumn]}>
-                      {delegate ? (delegate.category ? delegate.category.substring(0, 8) : "—") : "—"}
+                      {delegate ? (delegate.category ? delegate.category.substring(0, 3) : "—") : "—"}
                     </Text>
                     {delegate ? (
                       <>

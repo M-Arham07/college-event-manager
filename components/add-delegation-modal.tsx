@@ -21,52 +21,35 @@ interface AddDelegationModalProps {
   nextTeamId: number
 }
 
+const DELEGATE_COUNT = 10
+
 export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelegationModalProps) {
-  const [delegate1Name, setDelegate1Name] = useState('')
-  const [delegate1Category, setDelegate1Category] = useState('')
-  const [delegate2Name, setDelegate2Name] = useState('')
-  const [delegate2Category, setDelegate2Category] = useState('')
-  const [delegate3Name, setDelegate3Name] = useState('')
-  const [delegate3Category, setDelegate3Category] = useState('')
-  const [delegate4Name, setDelegate4Name] = useState('')
-  const [delegate4Category, setDelegate4Category] = useState('')
-  const [delegate5Name, setDelegate5Name] = useState('')
-  const [delegate5Category, setDelegate5Category] = useState('')
-  const [delegate1IsHead, setDelegate1IsHead] = useState(true)
-  const [delegate2IsHead, setDelegate2IsHead] = useState(false)
-  const [delegate3IsHead, setDelegate3IsHead] = useState(false)
-  const [delegate4IsHead, setDelegate4IsHead] = useState(false)
-  const [delegate5IsHead, setDelegate5IsHead] = useState(false)
-  const [includeDelegate2, setIncludeDelegate2] = useState(true)
-  const [includeDelegate3, setIncludeDelegate3] = useState(true)
-  const [includeDelegate4, setIncludeDelegate4] = useState(false)
-  const [includeDelegate5, setIncludeDelegate5] = useState(false)
+  // Initialize state for up to 10 delegates
+  const [delegateData, setDelegateData] = useState(
+    Array.from({ length: DELEGATE_COUNT }, (_, i) => ({
+      name: '',
+      category: '',
+      isHead: i === 0, // Only delegate 1 is head
+      include: i < 2, // Delegates 1 and 2 included by default
+    }))
+  )
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [category, setCategory] = useState('')
 
   // Validation
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
 
-    if (!delegate1Name.trim()) {
+    // Delegate 1 is always required
+    if (!delegateData[0].name.trim()) {
       newErrors.delegate1_name = 'Delegate 1 name is required'
     }
 
-    if (includeDelegate2 && !delegate2Name.trim()) {
-      newErrors.delegate2_name = 'Delegate 2 name is required when included'
-    }
-
-    if (includeDelegate3 && !delegate3Name.trim()) {
-      newErrors.delegate3_name = 'Delegate 3 name is required when included'
-    }
-
-    if (includeDelegate4 && !delegate4Name.trim()) {
-      newErrors.delegate4_name = 'Delegate 4 name is required when included'
-    }
-
-    if (includeDelegate5 && !delegate5Name.trim()) {
-      newErrors.delegate5_name = 'Delegate 5 name is required when included'
+    // Check all included delegates
+    for (let i = 1; i < DELEGATE_COUNT; i++) {
+      if (delegateData[i].include && !delegateData[i].name.trim()) {
+        newErrors[`delegate${i + 1}_name`] = `Delegate ${i + 1} name is required when included`
+      }
     }
 
     setErrors(newErrors)
@@ -74,25 +57,14 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
   }
 
   const handleReset = () => {
-    setDelegate1Name('')
-    setDelegate1Category('')
-    setDelegate1IsHead(false)
-    setDelegate2Name('')
-    setDelegate2Category('')
-    setDelegate2IsHead(false)
-    setDelegate3Name('')
-    setDelegate3Category('')
-    setDelegate3IsHead(false)
-    setDelegate4Name('')
-    setDelegate4Category('')
-    setDelegate4IsHead(false)
-    setDelegate5Name('')
-    setDelegate5Category('')
-    setDelegate5IsHead(false)
-    setIncludeDelegate2(true)
-    setIncludeDelegate3(true)
-    setIncludeDelegate4(false)
-    setIncludeDelegate5(false)
+    setDelegateData(
+      Array.from({ length: DELEGATE_COUNT }, (_, i) => ({
+        name: '',
+        category: '',
+        isHead: i === 0,
+        include: i < 2,
+      }))
+    )
     setErrors({})
   }
 
@@ -109,27 +81,21 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
     setIsSubmitting(true)
 
     try {
-      const result = await addDelegation({
-        delegate_1_name: delegate1Name,
-        delegate_1_category: delegate1Category || null,
+      // Build payload dynamically for up to 10 delegates
+      const payload: Record<string, any> = {
+        delegate_1_name: delegateData[0].name,
+        delegate_1_category: delegateData[0].category || null,
         delegate_1_is_head: true,
-        delegate_2_name: delegate2Name,
-        delegate_2_category: delegate2Category || null,
-        delegate_2_is_head: delegate2IsHead,
-        delegate_3_name: delegate3Name,
-        delegate_3_category: delegate3Category || null,
-        delegate_3_is_head: delegate3IsHead,
-        delegate_4_name: delegate4Name,
-        delegate_4_category: delegate4Category || null,
-        delegate_4_is_head: delegate4IsHead,
-        delegate_5_name: delegate5Name,
-        delegate_5_category: delegate5Category || null,
-        delegate_5_is_head: delegate5IsHead,
-        include_delegate_2: includeDelegate2,
-        include_delegate_3: includeDelegate3,
-        include_delegate_4: includeDelegate4,
-        include_delegate_5: includeDelegate5,
-      })
+      }
+
+      for (let i = 1; i < DELEGATE_COUNT; i++) {
+        payload[`delegate_${i + 1}_name`] = delegateData[i].name
+        payload[`delegate_${i + 1}_category`] = delegateData[i].category || null
+        payload[`delegate_${i + 1}_is_head`] = false
+        payload[`include_delegate_${i + 1}`] = delegateData[i].include
+      }
+
+      const result = await addDelegation(payload)
 
       if (result.success) {
         toast.success(`Delegation added! ${result.insertedCount} delegate(s) inserted to Team ${result.teamId}`)
@@ -146,13 +112,9 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
     }
   }
 
-  const isDelegate1Valid = delegate1Name.trim().length > 0
-  const isDelegate2Valid = !includeDelegate2 || delegate2Name.trim().length > 0
-  const isDelegate3Valid = !includeDelegate3 || delegate3Name.trim().length > 0
-  const isDelegate4Valid = !includeDelegate4 || delegate4Name.trim().length > 0
-  const isDelegate5Valid = !includeDelegate5 || delegate5Name.trim().length > 0
   const isFormValid =
-    isDelegate1Valid && isDelegate2Valid && isDelegate3Valid && isDelegate4Valid && isDelegate5Valid
+    delegateData[0].name.trim().length > 0 &&
+    delegateData.every((d, i) => !d.include || d.name.trim().length > 0)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -160,7 +122,7 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
         <DialogHeader>
           <DialogTitle>Add Delegation</DialogTitle>
           <DialogDescription>
-            Add up to 5 delegates to a new team (Team ID: {nextTeamId}). Each delegate can have their own category.
+            Add up to 10 delegates to a new team (Team ID: {nextTeamId}). Each delegate can have their own category.
           </DialogDescription>
         </DialogHeader>
 
@@ -173,9 +135,11 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                 <label className="text-xs font-medium text-muted-foreground">Name</label>
                 <Input
                   placeholder="Enter delegate name"
-                  value={delegate1Name}
+                  value={delegateData[0].name}
                   onChange={(e) => {
-                    setDelegate1Name(e.target.value)
+                    const newData = [...delegateData]
+                    newData[0].name = e.target.value
+                    setDelegateData(newData)
                     if (errors.delegate1_name) {
                       setErrors({ ...errors, delegate1_name: '' })
                     }
@@ -191,8 +155,12 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                 <label className="text-xs font-medium text-muted-foreground">Category</label>
                 <Input
                   placeholder="e.g., Engineering"
-                  value={delegate1Category}
-                  onChange={(e) => setDelegate1Category(e.target.value)}
+                  value={delegateData[0].category}
+                  onChange={(e) => {
+                    const newData = [...delegateData]
+                    newData[0].category = e.target.value
+                    setDelegateData(newData)
+                  }}
                   disabled={isSubmitting}
                 />
               </div>
@@ -201,250 +169,80 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
               <Checkbox
                 id="delegate-1-head"
                 checked={true}
-                onCheckedChange={(checked) => setDelegate1IsHead(checked as boolean)}
-                disabled={isSubmitting}
+                disabled={true}
               />
-              <label htmlFor="delegate-1-head" className="text-sm font-medium cursor-pointer text-foreground">
-                Delegate 1 will be head
+              <label htmlFor="delegate-1-head" className="text-sm font-medium cursor-default text-foreground">
+                Delegate 1 is Head (auto-assigned)
               </label>
             </div>
           </div>
 
-          {/* Delegate 2 */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="include-delegate-2"
-                checked={includeDelegate2}
-                onCheckedChange={(checked) => setIncludeDelegate2(checked as boolean)}
-                disabled={isSubmitting}
-              />
-              <label htmlFor="include-delegate-2" className="text-sm font-medium cursor-pointer">
-                Include Delegate 2
-              </label>
-            </div>
-            {includeDelegate2 && (
-              <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Name</label>
-                    <Input
-                      placeholder="Enter delegate name"
-                      value={delegate2Name}
-                      onChange={(e) => {
-                        setDelegate2Name(e.target.value)
-                        if (errors.delegate2_name) {
-                          setErrors({ ...errors, delegate2_name: '' })
-                        }
-                      }}
-                      disabled={isSubmitting}
-                      className={errors.delegate2_name ? 'border-destructive' : ''}
-                    />
-                    {errors.delegate2_name && (
-                      <p className="text-xs text-destructive">{errors.delegate2_name}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Category</label>
-                    <Input
-                      placeholder="e.g., Engineering"
-                      value={delegate2Category}
-                      onChange={(e) => setDelegate2Category(e.target.value)}
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 pt-2">
-                  {/* <Checkbox
-                    id="delegate-2-head"
-                    checked={delegate2IsHead}
-                    onCheckedChange={(checked) => setDelegate2IsHead(checked as boolean)}
-                    disabled={isSubmitting}
-                  />
-                  <label htmlFor="delegate-2-head" className="text-sm font-medium cursor-pointer text-foreground">
-                    Mark as Head
-                  </label> */}
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Delegates 2-10 */}
+          {Array.from({ length: DELEGATE_COUNT - 1 }, (_, i) => {
+            const delegateIndex = i + 1
+            const delegateNumber = delegateIndex + 1
+            const delegate = delegateData[delegateIndex]
+            const errorKey = `delegate${delegateNumber}_name`
 
-          {/* Delegate 3 */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="include-delegate-3"
-                checked={includeDelegate3}
-                onCheckedChange={(checked) => setIncludeDelegate3(checked as boolean)}
-                disabled={isSubmitting}
-              />
-              <label htmlFor="include-delegate-3" className="text-sm font-medium cursor-pointer">
-                Include Delegate 3
-              </label>
-            </div>
-            {includeDelegate3 && (
-              <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Name</label>
-                    <Input
-                      placeholder="Enter delegate name"
-                      value={delegate3Name}
-                      onChange={(e) => {
-                        setDelegate3Name(e.target.value)
-                        if (errors.delegate3_name) {
-                          setErrors({ ...errors, delegate3_name: '' })
-                        }
-                      }}
-                      disabled={isSubmitting}
-                      className={errors.delegate3_name ? 'border-destructive' : ''}
-                    />
-                    {errors.delegate3_name && (
-                      <p className="text-xs text-destructive">{errors.delegate3_name}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Category</label>
-                    <Input
-                      placeholder="e.g., Engineering"
-                      value={delegate3Category}
-                      onChange={(e) => setDelegate3Category(e.target.value)}
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 pt-2">
-                  {/* <Checkbox
-                    id="delegate-3-head"
-                    checked={delegate3IsHead}
-                    onCheckedChange={(checked) => setDelegate3IsHead(checked as boolean)}
+            return (
+              <div key={delegateIndex} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id={`include-delegate-${delegateNumber}`}
+                    checked={delegate.include}
+                    onCheckedChange={(checked) => {
+                      const newData = [...delegateData]
+                      newData[delegateIndex].include = checked as boolean
+                      setDelegateData(newData)
+                    }}
                     disabled={isSubmitting}
                   />
-                  <label htmlFor="delegate-3-head" className="text-sm font-medium cursor-pointer text-foreground">
-                    Mark as Head
-                  </label> */}
+                  <label htmlFor={`include-delegate-${delegateNumber}`} className="text-sm font-medium cursor-pointer">
+                    Include Delegate {delegateNumber}
+                  </label>
                 </div>
+                {delegate.include && (
+                  <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-muted-foreground">Name</label>
+                        <Input
+                          placeholder="Enter delegate name"
+                          value={delegate.name}
+                          onChange={(e) => {
+                            const newData = [...delegateData]
+                            newData[delegateIndex].name = e.target.value
+                            setDelegateData(newData)
+                            if (errors[errorKey]) {
+                              setErrors({ ...errors, [errorKey]: '' })
+                            }
+                          }}
+                          disabled={isSubmitting}
+                          className={errors[errorKey] ? 'border-destructive' : ''}
+                        />
+                        {errors[errorKey] && (
+                          <p className="text-xs text-destructive">{errors[errorKey]}</p>
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-muted-foreground">Category</label>
+                        <Input
+                          placeholder="e.g., Engineering"
+                          value={delegate.category}
+                          onChange={(e) => {
+                            const newData = [...delegateData]
+                            newData[delegateIndex].category = e.target.value
+                            setDelegateData(newData)
+                          }}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* Delegate 4 */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="include-delegate-4"
-                checked={includeDelegate4}
-                onCheckedChange={(checked) => setIncludeDelegate4(checked as boolean)}
-                disabled={isSubmitting}
-              />
-              <label htmlFor="include-delegate-4" className="text-sm font-medium cursor-pointer">
-                Include Delegate 4
-              </label>
-            </div>
-            {includeDelegate4 && (
-              <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Name</label>
-                    <Input
-                      placeholder="Enter delegate name"
-                      value={delegate4Name}
-                      onChange={(e) => {
-                        setDelegate4Name(e.target.value)
-                        if (errors.delegate4_name) {
-                          setErrors({ ...errors, delegate4_name: '' })
-                        }
-                      }}
-                      disabled={isSubmitting}
-                      className={errors.delegate4_name ? 'border-destructive' : ''}
-                    />
-                    {errors.delegate4_name && (
-                      <p className="text-xs text-destructive">{errors.delegate4_name}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Category</label>
-                    <Input
-                      placeholder="e.g., Engineering"
-                      value={delegate4Category}
-                      onChange={(e) => setDelegate4Category(e.target.value)}
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 pt-2">
-                  {/* <Checkbox
-                    id="delegate-4-head"
-                    checked={delegate4IsHead}
-                    onCheckedChange={(checked) => setDelegate4IsHead(checked as boolean)}
-                    disabled={isSubmitting}
-                  />
-                  <label htmlFor="delegate-4-head" className="text-sm font-medium cursor-pointer text-foreground">
-                    Mark as Head
-                  </label> */}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Delegate 5 */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="include-delegate-5"
-                checked={includeDelegate5}
-                onCheckedChange={(checked) => setIncludeDelegate5(checked as boolean)}
-                disabled={isSubmitting}
-              />
-              <label htmlFor="include-delegate-5" className="text-sm font-medium cursor-pointer">
-                Include Delegate 5
-              </label>
-            </div>
-            {includeDelegate5 && (
-              <div className="rounded-lg border border-border bg-secondary/20 p-3 space-y-3 ml-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Name</label>
-                    <Input
-                      placeholder="Enter delegate name"
-                      value={delegate5Name}
-                      onChange={(e) => {
-                        setDelegate5Name(e.target.value)
-                        if (errors.delegate5_name) {
-                          setErrors({ ...errors, delegate5_name: '' })
-                        }
-                      }}
-                      disabled={isSubmitting}
-                      className={errors.delegate5_name ? 'border-destructive' : ''}
-                    />
-                    {errors.delegate5_name && (
-                      <p className="text-xs text-destructive">{errors.delegate5_name}</p>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Category</label>
-                    <Input
-                      placeholder="e.g., Engineering"
-                      value={delegate5Category}
-                      onChange={(e) => setDelegate5Category(e.target.value)}
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 pt-2">
-                  {/* <Checkbox
-                    id="delegate-5-head"
-                    checked={delegate5IsHead}
-                    onCheckedChange={(checked) => setDelegate5IsHead(checked as boolean)}
-                    disabled={isSubmitting}
-                  />
-                  <label htmlFor="delegate-5-head" className="text-sm font-medium cursor-pointer text-foreground">
-                    Mark as Head
-                  </label> */}
-                </div>
-              </div>
-            )}
-          </div>
+            )
+          })}
         </div>
 
         {/* Footer buttons */}
