@@ -74,7 +74,7 @@ async function DashboardContentServer() {
 
   return (
     <DashboardContent 
-      initialDelegates={delegates}
+      initialDelegates={JSON.parse(JSON.stringify(delegates))}
       stats={stats}
       teams={teams}
       categories={categories}
