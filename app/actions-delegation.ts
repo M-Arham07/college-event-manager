@@ -7,14 +7,19 @@ import Delegate from "@/lib/models/delegate"
 export interface DelegationPayload {
   delegate_1_name: string
   delegate_1_category: string | null
+  delegate_1_is_head: boolean
   delegate_2_name?: string
   delegate_2_category: string | null
+  delegate_2_is_head: boolean
   delegate_3_name?: string
   delegate_3_category: string | null
+  delegate_3_is_head: boolean
   delegate_4_name?: string
   delegate_4_category: string | null
+  delegate_4_is_head: boolean
   delegate_5_name?: string
   delegate_5_category: string | null
+  delegate_5_is_head: boolean
   include_delegate_2: boolean
   include_delegate_3: boolean
   include_delegate_4: boolean
@@ -96,6 +101,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         delegate_name: delegate1Name,
         category: payload.delegate_1_category || null,
         attendance: { day1: false, day2: false, day3: false },
+        isHead: payload.delegate_1_is_head,
       },
     ]
 
@@ -105,6 +111,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         delegate_name: delegate2Name,
         category: payload.delegate_2_category || null,
         attendance: { day1: false, day2: false, day3: false },
+        isHead: payload.delegate_2_is_head,
       })
     }
 
@@ -114,6 +121,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         delegate_name: delegate3Name,
         category: payload.delegate_3_category || null,
         attendance: { day1: false, day2: false, day3: false },
+        isHead: payload.delegate_3_is_head,
       })
     }
 
@@ -123,6 +131,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         delegate_name: delegate4Name,
         category: payload.delegate_4_category || null,
         attendance: { day1: false, day2: false, day3: false },
+        isHead: payload.delegate_4_is_head,
       })
     }
 
@@ -132,6 +141,7 @@ export async function addDelegation(payload: DelegationPayload): Promise<Delegat
         delegate_name: delegate5Name,
         category: payload.delegate_5_category || null,
         attendance: { day1: false, day2: false, day3: false },
+        isHead: payload.delegate_5_is_head,
       })
     }
 

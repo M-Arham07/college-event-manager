@@ -32,6 +32,11 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
   const [delegate4Category, setDelegate4Category] = useState('')
   const [delegate5Name, setDelegate5Name] = useState('')
   const [delegate5Category, setDelegate5Category] = useState('')
+  const [delegate1IsHead, setDelegate1IsHead] = useState(true)
+  const [delegate2IsHead, setDelegate2IsHead] = useState(false)
+  const [delegate3IsHead, setDelegate3IsHead] = useState(false)
+  const [delegate4IsHead, setDelegate4IsHead] = useState(false)
+  const [delegate5IsHead, setDelegate5IsHead] = useState(false)
   const [includeDelegate2, setIncludeDelegate2] = useState(true)
   const [includeDelegate3, setIncludeDelegate3] = useState(true)
   const [includeDelegate4, setIncludeDelegate4] = useState(false)
@@ -71,14 +76,19 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
   const handleReset = () => {
     setDelegate1Name('')
     setDelegate1Category('')
+    setDelegate1IsHead(false)
     setDelegate2Name('')
     setDelegate2Category('')
+    setDelegate2IsHead(false)
     setDelegate3Name('')
     setDelegate3Category('')
+    setDelegate3IsHead(false)
     setDelegate4Name('')
     setDelegate4Category('')
+    setDelegate4IsHead(false)
     setDelegate5Name('')
     setDelegate5Category('')
+    setDelegate5IsHead(false)
     setIncludeDelegate2(true)
     setIncludeDelegate3(true)
     setIncludeDelegate4(false)
@@ -102,14 +112,19 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
       const result = await addDelegation({
         delegate_1_name: delegate1Name,
         delegate_1_category: delegate1Category || null,
+        delegate_1_is_head: true,
         delegate_2_name: delegate2Name,
         delegate_2_category: delegate2Category || null,
+        delegate_2_is_head: delegate2IsHead,
         delegate_3_name: delegate3Name,
         delegate_3_category: delegate3Category || null,
+        delegate_3_is_head: delegate3IsHead,
         delegate_4_name: delegate4Name,
         delegate_4_category: delegate4Category || null,
+        delegate_4_is_head: delegate4IsHead,
         delegate_5_name: delegate5Name,
         delegate_5_category: delegate5Category || null,
+        delegate_5_is_head: delegate5IsHead,
         include_delegate_2: includeDelegate2,
         include_delegate_3: includeDelegate3,
         include_delegate_4: includeDelegate4,
@@ -182,6 +197,17 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                 />
               </div>
             </div>
+            <div className="flex items-center gap-2 pt-2">
+              <Checkbox
+                id="delegate-1-head"
+                checked={true}
+                onCheckedChange={(checked) => setDelegate1IsHead(checked as boolean)}
+                disabled={isSubmitting}
+              />
+              <label htmlFor="delegate-1-head" className="text-sm font-medium cursor-pointer text-foreground">
+                Delegate 1 will be head
+              </label>
+            </div>
           </div>
 
           {/* Delegate 2 */}
@@ -227,6 +253,17 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                       disabled={isSubmitting}
                     />
                   </div>
+                </div>
+                <div className="flex items-center gap-2 pt-2">
+                  {/* <Checkbox
+                    id="delegate-2-head"
+                    checked={delegate2IsHead}
+                    onCheckedChange={(checked) => setDelegate2IsHead(checked as boolean)}
+                    disabled={isSubmitting}
+                  />
+                  <label htmlFor="delegate-2-head" className="text-sm font-medium cursor-pointer text-foreground">
+                    Mark as Head
+                  </label> */}
                 </div>
               </div>
             )}
@@ -276,6 +313,17 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                     />
                   </div>
                 </div>
+                <div className="flex items-center gap-2 pt-2">
+                  {/* <Checkbox
+                    id="delegate-3-head"
+                    checked={delegate3IsHead}
+                    onCheckedChange={(checked) => setDelegate3IsHead(checked as boolean)}
+                    disabled={isSubmitting}
+                  />
+                  <label htmlFor="delegate-3-head" className="text-sm font-medium cursor-pointer text-foreground">
+                    Mark as Head
+                  </label> */}
+                </div>
               </div>
             )}
           </div>
@@ -324,6 +372,17 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                     />
                   </div>
                 </div>
+                <div className="flex items-center gap-2 pt-2">
+                  {/* <Checkbox
+                    id="delegate-4-head"
+                    checked={delegate4IsHead}
+                    onCheckedChange={(checked) => setDelegate4IsHead(checked as boolean)}
+                    disabled={isSubmitting}
+                  />
+                  <label htmlFor="delegate-4-head" className="text-sm font-medium cursor-pointer text-foreground">
+                    Mark as Head
+                  </label> */}
+                </div>
               </div>
             )}
           </div>
@@ -371,6 +430,17 @@ export function AddDelegationModal({ open, onOpenChange, nextTeamId }: AddDelega
                       disabled={isSubmitting}
                     />
                   </div>
+                </div>
+                <div className="flex items-center gap-2 pt-2">
+                  {/* <Checkbox
+                    id="delegate-5-head"
+                    checked={delegate5IsHead}
+                    onCheckedChange={(checked) => setDelegate5IsHead(checked as boolean)}
+                    disabled={isSubmitting}
+                  />
+                  <label htmlFor="delegate-5-head" className="text-sm font-medium cursor-pointer text-foreground">
+                    Mark as Head
+                  </label> */}
                 </div>
               </div>
             )}

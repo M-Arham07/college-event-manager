@@ -9,6 +9,7 @@ export interface IDelegateDocument extends Document {
     day2: boolean
     day3: boolean
   }
+  isHead: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -36,6 +37,11 @@ const delegateSchema = new Schema<IDelegateDocument>(
         day3: { type: Boolean, default: false },
       },
       default: { day1: false, day2: false, day3: false },
+    },
+    isHead: {
+      type: Boolean,
+      default: false,
+      index: true,
     },
   },
   {

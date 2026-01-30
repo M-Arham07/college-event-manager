@@ -36,6 +36,7 @@ async function getDelegatesData() {
     delegate_name: d.delegate_name,
     category: d.category,
     attendance: d.attendance,
+    isHead: d.isHead ?? false,
     createdAt: new Date(d.createdAt).toISOString(),
     updatedAt: new Date(d.updatedAt).toISOString(),
   }))
